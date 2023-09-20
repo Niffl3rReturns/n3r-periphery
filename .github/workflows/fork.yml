@@ -1,9 +1,13 @@
 name: Mainnet fork tests
 
-# on: ["push", "pull_request"]
+on:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   fork:
+    if: false
     runs-on: ubuntu-latest
     environment: fork
     steps:
