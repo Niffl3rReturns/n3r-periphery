@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.6;
 
-import "@pooltogether/v4-core/contracts/interfaces/ITicket.sol";
-import "@pooltogether/v4-core/contracts/interfaces/IPrizeDistributionBuffer.sol";
-import "@pooltogether/v4-core/contracts/interfaces/IPrizeDistributionSource.sol";
-import "@pooltogether/v4-core/contracts/libraries/ExtendedSafeCastLib.sol";
-import "@pooltogether/owner-manager-contracts/contracts/Ownable.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/ITicket.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/IPrizeDistributionBuffer.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/IPrizeDistributionSource.sol";
+import "@niffl3rreturns/n3r-core/contracts/libraries/ExtendedSafeCastLib.sol";
+import "@niffl3rreturns/owner-manager-contracts/contracts/Ownable.sol";
 
 import "./interfaces/IPrizeTierHistoryV2.sol";
 

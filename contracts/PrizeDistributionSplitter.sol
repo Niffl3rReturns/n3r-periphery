@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.6;
 
-import "@pooltogether/v4-core/contracts/interfaces/IPrizeDistributionSource.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/IPrizeDistributionSource.sol";
 
 /**
  * @title  PoolTogether V4 PrizeDistributionSplitter

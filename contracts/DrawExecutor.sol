@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.6;
 
-import "@pooltogether/v4-core/contracts/interfaces/IDrawBuffer.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/IDrawBuffer.sol";
 
 import { ExecutorAware } from "./abstract/ExecutorAware.sol";
 

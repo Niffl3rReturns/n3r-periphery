@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.6;
-import "@pooltogether/v4-core/contracts/DrawBeacon.sol";
+import "@niffl3rreturns/n3r-core/contracts/DrawBeacon.sol";
 
 /**
  * @title  PoolTogether V4 IPrizeTierHistory

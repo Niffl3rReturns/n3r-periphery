@@ -5,7 +5,7 @@ import { BigNumber, Contract, ContractFactory } from "ethers";
 import { artifacts, ethers } from "hardhat";
 import { Artifact } from "hardhat/types";
 
-import { IDrawBeacon } from "../types/@pooltogether/v4-core/contracts/interfaces/IDrawBuffer";
+import { IDrawBeacon } from "../types/@niffl3rreturns/n3r-core/contracts/interfaces/IDrawBuffer";
 
 const { constants, getContractFactory, getSigners, provider, utils } = ethers;
 const { getTransactionReceipt } = provider;

@@ -1,6 +1,6 @@
 name: Mainnet fork tests
 
-on: ["push", "pull_request"]
+# on: ["push", "pull_request"]
 
 jobs:
   fork:

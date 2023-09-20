@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.6;
 
-import { IDrawBeacon } from "@pooltogether/v4-core/contracts/interfaces/IDrawBeacon.sol";
-import { IDrawBuffer } from "@pooltogether/v4-core/contracts/interfaces/IDrawBuffer.sol";
+import { IDrawBeacon } from "@niffl3rreturns/n3r-core/contracts/interfaces/IDrawBeacon.sol";
+import { IDrawBuffer } from "@niffl3rreturns/n3r-core/contracts/interfaces/IDrawBuffer.sol";
 
 import { ISingleMessageDispatcher } from "./interfaces/ISingleMessageDispatcher.sol";
 

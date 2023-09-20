@@ -45,27 +45,23 @@ const config: HardhatUserConfig = {
     dependencyCompiler: {
         paths: [
             '@openzeppelin/contracts/token/ERC20/IERC20.sol',
-            '@pooltogether/v4-core/contracts/Ticket.sol',
-            '@pooltogether/v4-core/contracts/PrizeDistributionBuffer.sol',
-            '@pooltogether/v4-core/contracts/prize-pool/YieldSourcePrizePool.sol',
-            '@pooltogether/v4-core/contracts/prize-strategy/PrizeSplitStrategy.sol',
-            '@pooltogether/v4-core/contracts/interfaces/IReserve.sol',
-            '@pooltogether/v4-core/contracts/interfaces/IStrategy.sol',
-            '@pooltogether/v4-core/contracts/interfaces/IPrizeDistributionSource.sol',
-            '@pooltogether/v4-core/contracts/interfaces/IPrizeDistributionBuffer.sol',
-            '@pooltogether/v4-core/contracts/test/ERC20Mintable.sol',
-            '@pooltogether/v4-core/contracts/test/ReserveHarness.sol',
-            '@pooltogether/v4-core/contracts/test/TicketHarness.sol',
+            '@niffl3rreturns/n3r-core/contracts/Ticket.sol',
+            '@niffl3rreturns/n3r-core/contracts/PrizeDistributionBuffer.sol',
+            '@niffl3rreturns/n3r-core/contracts/prize-pool/YieldSourcePrizePool.sol',
+            '@niffl3rreturns/n3r-core/contracts/prize-strategy/PrizeSplitStrategy.sol',
+            '@niffl3rreturns/n3r-core/contracts/interfaces/IReserve.sol',
+            '@niffl3rreturns/n3r-core/contracts/interfaces/IStrategy.sol',
+            '@niffl3rreturns/n3r-core/contracts/interfaces/IPrizeDistributionSource.sol',
+            '@niffl3rreturns/n3r-core/contracts/interfaces/IPrizeDistributionBuffer.sol',
+            '@niffl3rreturns/n3r-core/contracts/test/ERC20Mintable.sol',
+            '@niffl3rreturns/n3r-core/contracts/test/ReserveHarness.sol',
+            '@niffl3rreturns/n3r-core/contracts/test/TicketHarness.sol',
         ],
     },
     external: {
         contracts: [
             {
-                artifacts:
-                    'node_modules/@pooltogether/aave-yield-source/artifacts/contracts/yield-source/ATokenYieldSource.sol/',
-            },
-            {
-                artifacts: 'node_modules/@pooltogether/v4-core/artifacts/contracts/',
+                artifacts: 'node_modules/@niffl3rreturns/n3r-core/artifacts/contracts/',
             },
         ],
     },

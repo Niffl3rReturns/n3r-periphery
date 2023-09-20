@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.6;
 
-import "@pooltogether/v4-core/contracts/interfaces/IReserve.sol";
-import "@pooltogether/v4-core/contracts/interfaces/IStrategy.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/IReserve.sol";
+import "@niffl3rreturns/n3r-core/contracts/interfaces/IStrategy.sol";
 
 interface IPrizeFlush {
     /**
