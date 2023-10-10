@@ -222,19 +222,11 @@ describe('PrizeDistributionFactory', () => {
     });
 
     describe('calculatePrizeDistribution()', () => {
-        it('should require that the passed total supply is gte ticket total supply', async () => {
-            await setupMocks({}, {}, toWei('100'));
-
-            await expect(
-                prizeDistributionFactory.calculatePrizeDistribution(1, toWei('10')),
-            ).to.be.revertedWith('PDF/invalid-network-supply');
-        });
-
         it('should copy in all of the prize tier values', async () => {
             await setupMocks();
 
             const prizeDistributionObject = toObject(
-                await prizeDistributionFactory.calculatePrizeDistribution(1, toWei('1000')),
+                await prizeDistributionFactory.calculatePrizeDistribution(1),
             );
 
             const prizeDistribution = createPrizeDistribution({ matchCardinality: 4 });
@@ -248,12 +240,12 @@ describe('PrizeDistributionFactory', () => {
             await setupMocks({}, {}, toWei('0'));
 
             const prizeDistributionObject = toObject(
-                await prizeDistributionFactory.calculatePrizeDistribution(1, toWei('0')),
+                await prizeDistributionFactory.calculatePrizeDistribution(1),
             );
 
             const prizeDistribution = createPrizeDistribution({
                 matchCardinality: 1,
-                numberOfPicks: toWei('0'),
+                numberOfPicks: BigNumber.from(4),
             });
 
             expect(JSON.stringify(prizeDistributionObject)).to.equal(
@@ -265,7 +257,7 @@ describe('PrizeDistributionFactory', () => {
             await setupMocks({}, {}, toWei('100'));
 
             const prizeDistributionObject = toObject(
-                await prizeDistributionFactory.calculatePrizeDistribution(1, toWei('100')),
+                await prizeDistributionFactory.calculatePrizeDistribution(1),
             );
 
             const prizeDistribution = createPrizeDistribution({
@@ -283,14 +275,14 @@ describe('PrizeDistributionFactory', () => {
         it('should push the prize distribution onto the buffer', async () => {
             await setupMocks();
             await prizeDistributionBuffer.mock.pushPrizeDistribution.returns(true);
-            await expect(prizeDistributionFactory.pushPrizeDistribution(1, toWei('1000')))
+            await expect(prizeDistributionFactory.pushPrizeDistribution(1))
                 .to.emit(prizeDistributionFactory, 'PrizeDistributionPushed')
-                .withArgs(1, toWei('1000'));
+                .withArgs(1);
         });
 
         it('requires the manager or owner', async () => {
             await expect(
-                prizeDistributionFactory.connect(wallet2).pushPrizeDistribution(1, toWei('1000')),
+                prizeDistributionFactory.connect(wallet2).pushPrizeDistribution(1),
             ).to.be.revertedWith('Manageable/caller-not-manager-or-owner');
         });
     });
@@ -299,14 +291,14 @@ describe('PrizeDistributionFactory', () => {
         it('should push the prize distribution onto the buffer', async () => {
             await setupMocks();
             await prizeDistributionBuffer.mock.setPrizeDistribution.returns(1);
-            await expect(prizeDistributionFactory.setPrizeDistribution(1, toWei('1000')))
+            await expect(prizeDistributionFactory.setPrizeDistribution(1))
                 .to.emit(prizeDistributionFactory, 'PrizeDistributionSet')
-                .withArgs(1, toWei('1000'));
+                .withArgs(1);
         });
 
         it('requires the owner', async () => {
             await expect(
-                prizeDistributionFactory.connect(wallet2).setPrizeDistribution(1, toWei('1000')),
+                prizeDistributionFactory.connect(wallet2).setPrizeDistribution(1),
             ).to.be.revertedWith('Ownable/caller-not-owner');
         });
     });

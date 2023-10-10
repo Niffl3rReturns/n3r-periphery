@@ -18,13 +18,11 @@ contract PrizeDistributionFactory is Manageable {
 
     /// @notice Emitted when a new Prize Distribution is pushed.
     /// @param drawId The draw id for which the prize dist was pushed
-    /// @param totalNetworkTicketSupply The total network ticket supply that was used to compute the cardinality and portion of picks
-    event PrizeDistributionPushed(uint32 indexed drawId, uint256 totalNetworkTicketSupply);
+    event PrizeDistributionPushed(uint32 indexed drawId);
 
     /// @notice Emitted when a Prize Distribution is set (overrides another)
     /// @param drawId The draw id for which the prize dist was set
-    /// @param totalNetworkTicketSupply The total network ticket supply that was used to compute the cardinality and portion of picks
-    event PrizeDistributionSet(uint32 indexed drawId, uint256 totalNetworkTicketSupply);
+    event PrizeDistributionSet(uint32 indexed drawId);
 
     /// @notice The prize tier history to pull tier information from
     IPrizeTierHistory public immutable prizeTierHistory;
@@ -67,22 +65,17 @@ contract PrizeDistributionFactory is Manageable {
      * @notice Allows the owner or manager to push a new prize distribution onto the buffer.
      * The PrizeTier and Draw for the given draw id will be pulled in, and the total network ticket supply will be used to calculate cardinality.
      * @param _drawId The draw id to compute for
-     * @param _totalNetworkTicketSupply The total supply of tickets across all prize pools for the network that the ticket belongs to.
      * @return The resulting Prize Distribution
      */
-    function pushPrizeDistribution(uint32 _drawId, uint256 _totalNetworkTicketSupply)
-        external
-        onlyManagerOrOwner
-        returns (IPrizeDistributionBuffer.PrizeDistribution memory)
-    {
+    function pushPrizeDistribution(
+        uint32 _drawId
+    ) external onlyManagerOrOwner returns (IPrizeDistributionBuffer.PrizeDistribution memory) {
         IPrizeDistributionBuffer.PrizeDistribution
-            memory prizeDistribution = calculatePrizeDistribution(
-                _drawId,
-                _totalNetworkTicketSupply
-            );
+            memory prizeDistribution = calculatePrizeDistribution(_drawId);
+
         prizeDistributionBuffer.pushPrizeDistribution(_drawId, prizeDistribution);
 
-        emit PrizeDistributionPushed(_drawId, _totalNetworkTicketSupply);
+        emit PrizeDistributionPushed(_drawId);
 
         return prizeDistribution;
     }
@@ -91,22 +84,17 @@ contract PrizeDistributionFactory is Manageable {
      * @notice Allows the owner or manager to override an existing prize distribution in the buffer.
      * The PrizeTier and Draw for the given draw id will be pulled in, and the total network ticket supply will be used to calculate cardinality.
      * @param _drawId The draw id to compute for
-     * @param _totalNetworkTicketSupply The total supply of tickets across all prize pools for the network that the ticket belongs to.
      * @return The resulting Prize Distribution
      */
-    function setPrizeDistribution(uint32 _drawId, uint256 _totalNetworkTicketSupply)
-        external
-        onlyOwner
-        returns (IPrizeDistributionBuffer.PrizeDistribution memory)
-    {
+    function setPrizeDistribution(
+        uint32 _drawId
+    ) external onlyOwner returns (IPrizeDistributionBuffer.PrizeDistribution memory) {
         IPrizeDistributionBuffer.PrizeDistribution
-            memory prizeDistribution = calculatePrizeDistribution(
-                _drawId,
-                _totalNetworkTicketSupply
-            );
+            memory prizeDistribution = calculatePrizeDistribution(_drawId);
+
         prizeDistributionBuffer.setPrizeDistribution(_drawId, prizeDistribution);
 
-        emit PrizeDistributionSet(_drawId, _totalNetworkTicketSupply);
+        emit PrizeDistributionSet(_drawId);
 
         return prizeDistribution;
     }
@@ -114,74 +102,26 @@ contract PrizeDistributionFactory is Manageable {
     /**
      * @notice Calculates what the prize distribution will be, given a draw id and total network ticket supply.
      * @param _drawId The draw id to pull from the Draw Buffer and Prize Tier History
-     * @param _totalNetworkTicketSupply The total of all ticket supplies across all prize pools in this network
      * @return PrizeDistribution using info from the Draw for the given draw id, total network ticket supply, and PrizeTier for the draw.
      */
-    function calculatePrizeDistribution(uint32 _drawId, uint256 _totalNetworkTicketSupply)
-        public
-        view
-        virtual
-        returns (IPrizeDistributionBuffer.PrizeDistribution memory)
-    {
-        IDrawBeacon.Draw memory draw = drawBuffer.getDraw(_drawId);
-        return
-            calculatePrizeDistributionWithDrawData(
-                _drawId,
-                _totalNetworkTicketSupply,
-                draw.beaconPeriodSeconds,
-                draw.timestamp
-            );
-    }
-
-    /**
-     * @notice Calculates what the prize distribution will be, given a draw id and total network ticket supply.
-     * @param _drawId The draw from which to use the Draw and
-     * @param _totalNetworkTicketSupply The sum of all ticket supplies across all prize pools on the network
-     * @param _beaconPeriodSeconds The beacon period in seconds
-     * @param _drawTimestamp The timestamp at which the draw RNG request started.
-     * @return A PrizeDistribution based on the given params and PrizeTier for the passed draw id
-     */
-    function calculatePrizeDistributionWithDrawData(
-        uint32 _drawId,
-        uint256 _totalNetworkTicketSupply,
-        uint32 _beaconPeriodSeconds,
-        uint64 _drawTimestamp
+    function calculatePrizeDistribution(
+        uint32 _drawId
     ) public view virtual returns (IPrizeDistributionBuffer.PrizeDistribution memory) {
-        uint256 maxPicks = _totalNetworkTicketSupply / minPickCost;
+        IDrawBeacon.Draw memory draw = drawBuffer.getDraw(_drawId);
+        IPrizeTierHistory.PrizeTier memory prizeTier = prizeTierHistory.getPrizeTier(_drawId);
 
-        IPrizeDistributionBuffer.PrizeDistribution
-            memory prizeDistribution = _calculatePrizeDistribution(
-                _drawId,
-                _beaconPeriodSeconds,
-                maxPicks
+        (
+            uint64[] memory startTimes,
+            uint64[] memory endTimes
+        ) = _calculateDrawPeriodTimestampOffsets(
+                draw.timestamp,
+                draw.beaconPeriodSeconds,
+                prizeTier.endTimestampOffset
             );
 
-        uint64[] memory startTimestamps = new uint64[](1);
-        uint64[] memory endTimestamps = new uint64[](1);
-
-        startTimestamps[0] = _drawTimestamp - prizeDistribution.startTimestampOffset;
-        endTimestamps[0] = _drawTimestamp - prizeDistribution.endTimestampOffset;
-
-        uint256[] memory ticketAverageTotalSupplies = ticket.getAverageTotalSuppliesBetween(
-            startTimestamps,
-            endTimestamps
-        );
-
-        require(
-            _totalNetworkTicketSupply >= ticketAverageTotalSupplies[0],
-            "PDF/invalid-network-supply"
-        );
-
-        if (_totalNetworkTicketSupply > 0) {
-            prizeDistribution.numberOfPicks = uint256(
-                (prizeDistribution.numberOfPicks * ticketAverageTotalSupplies[0]) /
-                    _totalNetworkTicketSupply
-            ).toUint104();
-        } else {
-            prizeDistribution.numberOfPicks = 0;
-        }
-
-        return prizeDistribution;
+        uint256 totalTicketSupply = ticket.getAverageTotalSuppliesBetween(startTimes, endTimes)[0];
+        uint256 maxPicks = totalTicketSupply / minPickCost;
+        return _calculatePrizeDistribution(_drawId, draw.beaconPeriodSeconds, maxPicks);
     }
 
     /**
@@ -201,7 +141,7 @@ contract PrizeDistributionFactory is Manageable {
         uint8 cardinality;
         do {
             cardinality++;
-        } while ((2**prizeTier.bitRangeSize)**(cardinality + 1) < _maxPicks);
+        } while ((2 ** prizeTier.bitRangeSize) ** (cardinality + 1) < _maxPicks);
 
         IPrizeDistributionBuffer.PrizeDistribution
             memory prizeDistribution = IPrizeDistributionSource.PrizeDistribution({
@@ -211,11 +151,32 @@ contract PrizeDistributionFactory is Manageable {
                 endTimestampOffset: prizeTier.endTimestampOffset,
                 maxPicksPerUser: prizeTier.maxPicksPerUser,
                 expiryDuration: prizeTier.expiryDuration,
-                numberOfPicks: uint256((2**prizeTier.bitRangeSize)**cardinality).toUint104(),
+                numberOfPicks: uint256((2 ** prizeTier.bitRangeSize) ** cardinality).toUint104(),
                 tiers: prizeTier.tiers,
                 prize: prizeTier.prize
             });
 
         return prizeDistribution;
+    }
+
+    /**
+     * @notice Calculate Draw period start and end timestamp.
+     * @param _timestamp Timestamp at which the draw was created by the DrawBeacon
+     * @param _startOffset Draw start time offset in seconds
+     * @param _endOffset Draw end time offset in seconds
+     * @return Draw start and end timestamp
+     */
+    function _calculateDrawPeriodTimestampOffsets(
+        uint64 _timestamp,
+        uint32 _startOffset,
+        uint32 _endOffset
+    ) internal pure returns (uint64[] memory, uint64[] memory) {
+        uint64[] memory _startTimestamps = new uint64[](1);
+        uint64[] memory _endTimestamps = new uint64[](1);
+
+        _startTimestamps[0] = _timestamp - _startOffset;
+        _endTimestamps[0] = _timestamp - _endOffset;
+
+        return (_startTimestamps, _endTimestamps);
     }
 }
